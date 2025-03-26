@@ -1,21 +1,33 @@
 const fs = require('fs');
 const url = require('url');
-const http = require('http');
+const express = require('express');
 
-const DIR = './pages';
+const app = express();
+const dir = './pages';
 
-http.createServer((req, res) => {
-  let fileName = url.parse(req.url).path;
+app.get('/', (req, res) => {
+  const all = JSON.parse(fs.readFileSync(`${dir}/index.json`));
+  res.json(all);
+});
 
-  if (fileName === '/') fileName += 'index';
+app.get('/teams', (req, res) => {
+  const path = url.parse(req.url).path;
+  const data = JSON.parse(fs.readFileSync(`${dir}${path}.json`));
+  res.json(data);
+});
 
-  fs.readFile(`${DIR}${fileName}.json`, (err, data) => {
-    if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/json' });
-      return res.end(JSON.stringify({ error: 'File not found' }));
-    }
-    res.writeHead(200, { 'Content-Type': 'text/json' });
-    res.write(data);
-    return res.end();
-  });
-}).listen(8080);
+app.get('/leagues', (req, res) => {
+  const path = url.parse(req.url).path;
+  const data = JSON.parse(fs.readFileSync(`${dir}${path}.json`));
+  res.send(data);
+});
+
+app.get('/players', (req, res) => {
+  const path = url.parse(req.url).path;
+  const data = JSON.parse(fs.readFileSync(`${dir}${path}.json`));
+  res.send(data);
+});
+
+app.listen(8080, () => {
+  console.log("Listening on port 8080");
+})
